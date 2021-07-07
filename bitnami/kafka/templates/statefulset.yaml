@@ -207,14 +207,13 @@ spec:
                 fieldRef:
                   fieldPath: status.hostIP
             {{- end }}
-            {{- else }}
-            - name: KAFKA_CFG_ADVERTISED_LISTENERS
-              {{- if .Values.advertisedListeners }}
-              value: {{ join "," .Values.advertisedListeners }}
-              {{- else }}
-              value: "INTERNAL://$(MY_POD_NAME).{{ $fullname }}-headless.{{ $releaseNamespace }}.svc.{{ $clusterDomain }}:{{ $interBrokerPort }},CLIENT://$(MY_POD_NAME).{{ $fullname }}-headless.{{ $releaseNamespace }}.svc.{{ $clusterDomain }}:{{ $clientPort }}"
-              {{- end }}
             {{- end }}
+            - name: KAFKA_ADVERTISED_LISTENERS
+              {{- if .Values.advertisedListeners }}
+              value: "{{ join "," .Values.advertisedListeners }}"
+              {{- else }}
+              value: "INTERNAL://${MY_POD_NAME}.{{ $fullname }}-headless.{{ $releaseNamespace }}.svc.{{ $clusterDomain }}:{{ $interBrokerPort }},CLIENT://${MY_POD_NAME}.{{ $fullname }}-headless.{{ $releaseNamespace }}.svc.{{ $clusterDomain }}:{{ $clientPort }}"
+              {{- end }}
             - name: ALLOW_PLAINTEXT_LISTENER
               value: {{ ternary "yes" "no" .Values.allowPlaintextListener | quote }}
             {{- if or (include "kafka.client.saslAuthentication" .) (include "kafka.interBroker.saslAuthentication" .) }}
